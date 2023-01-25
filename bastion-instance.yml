@@ -4,7 +4,7 @@
   gather_facts: no
   tasks:
     - name: Import VPC Setup Variable
-      include_vars: ~/ansible/var/bastion_setup
+      include_vars: ~/ansible/var/vpc-setup
       
     - name: Import VPC Setup Variable
       include_vars: ~/ansible/var/output_vars
