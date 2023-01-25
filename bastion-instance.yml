@@ -4,10 +4,10 @@
   gather_facts: no
   tasks:
     - name: Import VPC Setup Variable
-      include_vars: /var/bastion_setup
+      include_vars: ~/ansible/var/bastion_setup
       
     - name: Import VPC Setup Variable
-      include_vars: /var/output_vars
+      include_vars: ~/ansible/var/output_vars
     
     - name: Create Vprofile ec2 key
       ec2_key:
