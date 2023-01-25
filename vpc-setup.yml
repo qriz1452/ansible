@@ -95,8 +95,8 @@
       
     - name: Intenet Gateway setup
       ec2_vpc_igw:
-        vpc_id: "{{vpcout.vpc.id}}""
-        region:  "{{region}}""
+        vpc_id: "{{vpcout.vpc.id}}"
+        region:  "{{region}}"
         state: "{{state}"
         resource_tags:
             Name: vprofile-IGW
