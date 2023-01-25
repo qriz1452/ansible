@@ -36,8 +36,6 @@
       register: vproELBSG_out
 
     - name: Create Securiry Group for Vprofile Stack
-      ansible.builtin.command: /bin/false
-      ignore_errors: true
       ec2_group:
         name: vproStack-sg
         description: Allow port 22 from everywhere and all port within sg
@@ -58,8 +56,6 @@
 
 
     - name: Update Securiry Group with its own sg id
-      ansible.builtin.command: /bin/false
-      ignore_errors: true
       ec2_group:
         name: vproStack-sg
         description: Allow port 22 from everywhere and all port within sg
