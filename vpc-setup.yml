@@ -159,18 +159,18 @@
         - privRT_out.route_table_id
         
     - set_fact:
-          vpcid: "{{  vpcout.vpc.id }}"
-          pubsub1id: "{{ pubsub1_out.subnet.id }}"
-          pubsub2id: "{{ pubsub2_out.subnet.id }}"
-          pubsub3id: "{{ pubsub3_out.subnet.id }}"
-          privsub1id: "{{ privsub1_out.subnet.id }}"
-          privsub2id: "{{ privsub2_out.subnet.id }}"
-          privsub3id: "{{ privsub3_out.subnet.id }}"
-          igwid: "{{  igw_out.gateway_id }}"
-          pubRTid: "{{ pubRT_out.route_table.id }}"
-          NATGWid: "{{ NATGW_out.nat_gateway_id }}"
-          privRTid: "{{ privRT_out.route_table_id }}"
-          cacheable: yes
+        vpcid: "{{  vpcout.vpc.id }}"
+        pubsub1id: "{{ pubsub1_out.subnet.id }}"
+        pubsub2id: "{{ pubsub2_out.subnet.id }}"
+        pubsub3id: "{{ pubsub3_out.subnet.id }}"
+        privsub1id: "{{ privsub1_out.subnet.id }}"
+        privsub2id: "{{ privsub2_out.subnet.id }}"
+        privsub3id: "{{ privsub3_out.subnet.id }}"
+        igwid: "{{  igw_out.gateway_id }}"
+        pubRTid: "{{ pubRT_out.route_table.id }}"
+        NATGWid: "{{ NATGW_out.nat_gateway_id }}"
+        privRTid: "{{ privRT_out.route_table_id }}"
+        cacheable: yes
           
     - name: create variale files for VPC output
       copy: 
