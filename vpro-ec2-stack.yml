@@ -53,6 +53,8 @@
             to_port: 22
             group_id: "{{BastionSGid}}"
       register: vproStackSG_out
+      when: vproStackSG_out.changed
+
 
     - name: Update Securiry Group with its own sg id
       ec2_group:
@@ -64,6 +66,8 @@
         rules:
           - proto: all
             group_id: "{{vproStackSG_out.group_id}}"
+      when: vproStackSG_out.changed
+
 
     - name: Creating Nginx web01
       ec2:
