@@ -63,7 +63,7 @@
           region: "{{region}}"
           az: "{{zone1}}"
           state: "{{state}}"
-          cidr: "{{privSub1Cidr}}"
+          cidr: "{{PrivSub1Cidr}}"
           map_public: yes
           resource_tags:
             Name: vprofile-privsub1
