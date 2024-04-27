@@ -84,12 +84,76 @@ A1 : `ansible-config init --disabled -t all > ansible.cfg`
 A1 : ` cat ansible.cfg `
 
 
-Step 5 : Ansible Playbooks 
+----------------------------------------------------------------
+
+Step 5 : Ansible Playbooks  PING Module
 
 A1 : `mkdir playbooks`   ( // just creating directory for maintaining )
+NOW ALL PLAYBOOKS IN GIT  : https://github.com/qriz1452/ansible/blob/main/Playbooks/01-ping-test-connectivity.yml
+A1 : `ansible-playbook your-playbook.yml`
+
+** The execution is : play --> gather task --> tasks --> other tasks --> play recap 
+** if any error in running playbook we will get the error details on the console only.
+** we can use linting aswell.
+
+A1 :  `ansible-playbook --syntax-check playbook.yml`
 
 
-NOW ALL PLAYBOOKS IN GIT 
+
+
+
+
+----------------------------------------------------------------
+
+
+Step 5 : Ansible Playbooks  PING and debud Module 
+
+Pinging localhost and printing some text.
+Playbook URL :  https://github.com/qriz1452/ansible/blob/main/Playbooks/02-ping-debug-modules.yml
+
+
+-----------------------------------------------------------------------------
+
+Step 6 : Ansible playbook  yum and service  module
+
+installing and starting the package , service
+Playbook URL : https://github.com/qriz1452/ansible/blob/main/Playbooks/03-yum-service.yml
+
+A1 : `nginx`
+A1 : playbook run
+A1 : `nginx`
+A1 : `systemctl status nginx`  ( // it will show started and enabled )
+
+-----------------------------------------------------------------------------------
+
+Step 6 : Overview of Ansible Playbook
+
+
+Ansible docs for modules and its parameters.
+
+
+
+
+-------------------------------------------------------------
+
+
+Step 7 : Playbook for remote servers :
+
+A1 : `cd /etc/ansible` 
+A1 : `cat hosts`                          ( // default inventory file for ansible inventory )
+A1 : `ansible-inventory --list`           ( // we can list the servers/hosts from default inventory file )
+A1 : `ansible all -m ping`                ( // pinging all ip in hosts inventory file ) 
+
+
+Update the ansible playbook ( Step 5  )  and replace `localhost` with `all`
+
+
+
+
+
+
+
+
 
 
 
