@@ -251,6 +251,124 @@ To disable a cron jobs use `disabled: yes` in playbook.
 -------------------------------------------
 
 
+Step 18 : Cron Job ENV
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/11-CRON%20job%20ENV%20variable.yml
+we can use `insertafter` or `insertbefore` if we have requirement to initialise vars before or after other.
+To delete var use `state: absent` in playbook.
+
+-------------------------------------
+
+
+
+Step 19 : User management 
+
+
+Playbook:  https://github.com/qriz1452/ansible/blob/main/Playbooks/12-user-management.yml
+We can check the users on vm using   `su your-user` or its password in `cat /etc/passwd  ` or `id nick` 
+To add a group `groupadd your-group`  and check groups `cat /etc/group`
+
+In playbook if we need to add multiple groups use `groups: QA,nick0`
+To delete the user add   `state: absent`
+To delete user data add  `remove: yes`
+
+
+-------------------------------------------------
+
+Step 20 : Password management 
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/13-password-management.yml
+Password should be hashed encoded in playbook. so instead of plain text follow the playbook
+
+
+-------------------------------------------------
+
+
+Step 21 : Process management
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/14-process-management.yml
+To find the PID of running process use   `pgrep nginx  ` and to kill it use `pgrep nginx | xargs kill`
+
+
+----------------------------------------------------------
+
+Step 22 : Downloading file from internet
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/15-downloading-file.yml
+`get_url` module works with ftp, http, and https
+
+
+-------------------------------------------------------
+
+Step 23: Firewall and port management
+
+Playbook: https://github.com/qriz1452/ansible/blob/main/Playbooks/16-firewall-and-port.yml
+
+we can directly enable service port by adding `service: nginx` for well known services instead of `port: 80/tcp`.
+
+--------------------------------------------------------
+
+Step 24 : Run tasks as SUDO user
+
+Just add `become: true`  in playbook. and when running playbook use ` ansible-playbook --ask-become-pass playbook.yml` so it will prompt for password else will get an password error 
+
+
+=========================================
+
+
+Step 25 : Ansible AdHoc Tasks 
+
+`ansible myserver -m command -a "df -h"`
+
+`ansible localhost -m ping`
+
+`ansible 1.1.1.1 -m copy -a "src=/tmp/file.txt" dest="/home/file.txt" mode=0777 -b --ask-become-pass` 
+
+`ansible all -m service -a "name=nginx state=reloaded" `
+
+`ansible all -m shell -a "/home/script.sh"`
+
+`ansible all -m command -a "free -h"`
+
+`ansible all -m yum -a "name=vim state=present"`
+
+
+------------------------------
+
+Step 26 : Ansible Tags 
+
+If we have multiple tasks in ansible playbook and we want to run few tasks only for example : 
+Ansible playbook -->  2 tasks i.e nginx installation and ngins service start --> add tags --> use 1 tag to execute 1 task
+
+`tags: ins-nginx` add this  same as name,module indentation.
+
+`ansible-playbook paybook.yml --list-tags`  : To list all tags
+
+`ansible-playbook playbook.yml -t ins-nginx`  : will run installation task only
+
+`ansible-playbook playbook.yml --skip-tags`  : will run non tag tasks
+
+
+
+------------------------------------
+
+Step 27 : Variables in Ansible
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
