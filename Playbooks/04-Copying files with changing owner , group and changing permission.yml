@@ -7,3 +7,6 @@
     copy:
       src: /root/myfile.txt
       dest: /tmp/
+      owner: paul 
+      group: paul
+      mode: 0777
