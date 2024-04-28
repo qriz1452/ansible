@@ -1,0 +1,13 @@
+---
+- name: Downloading files
+  hosts: all
+
+  tasks:
+  - name: Download file
+    get_url:
+      url: https://lolurl.com/myfile.exe
+      dest: /tmp/yourfolder
+      owner: paul
+      group: paul
+      mode: 0777
+      
