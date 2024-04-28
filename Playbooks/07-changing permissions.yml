@@ -1,0 +1,21 @@
+---
+- name: Changing permissions
+  hosts: all
+
+  tasks:
+  - name: Change perm of file
+    file:
+      path: /tmp/file.txt
+      owner: paul
+      group: paul
+      mode: u=r,g=rw
+  
+        
+  - name: Change perm of dir
+    file: 
+      path: /tmp/myfolder
+      state: directory
+      recurse: true
+      owner: paul
+      group: paul
+      mode: 0777
