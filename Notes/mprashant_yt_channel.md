@@ -126,7 +126,7 @@ A1 : `systemctl status nginx`  ( // it will show started and enabled )
 
 -----------------------------------------------------------------------------------
 
-Step 6 : Overview of Ansible Playbook
+Step 7 : Overview of Ansible Playbook
 
 
 Ansible docs for modules and its parameters.
@@ -137,7 +137,7 @@ Ansible docs for modules and its parameters.
 -------------------------------------------------------------
 
 
-Step 7 : Playbook for remote servers :
+Step 8 : Playbook for remote servers :
 
 A1 : `cd /etc/ansible` 
 A1 : `cat hosts`                          ( // default inventory file for ansible inventory )
@@ -148,18 +148,58 @@ A1 : `ansible all -m ping`                ( // pinging all ip in hosts inventory
 Update the ansible playbook ( Step 5  )  and replace `localhost` with `all`
 
 
+A1 :  `ansible-playbook --syntax-check playbook.yml`
+A1 :  `ansible-playbook  playbook.yml`
+
+
+------------------------------------------------------------------
 
 
 
 
+Step 9 : Installing package on remote server : 
+
+Update the ansible playbook ( Step 6  )  and replace `localhost` with `all`
+Also add the ip of remote server on `hosts` file located at `/etc/ansible `
 
 
 
+A1 :  `ansible-playbook --syntax-check playbook.yml`
+A1 :  `ansible-playbook  playbook.yml`
 
 
 
+-----------------------------------------------------------------------------
+
+Step 10 : Copying files with changing owner , group and changing permission
+
+Playbook URL : https://github.com/qriz1452/ansible/blob/main/Playbooks/04-Copying%20files%20to%20remote.yml
+Apply playbook and verify on remote server copied or not.
+
+permission and group, owner etc will be same in both server.
+If we dont change the file and run the copy playbook again then it will no copy the file again.
+If we made changes then copying again then it will OVERWRITE.
+
+-------------------------------------------------------------------------------
+
+Step 11 :  Creating Backup while copying
 
 
 
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/05-Creating%20Backup%20while%20copying.yml
+If we made changes in file and copying then only backup will be created else it will not . The previous file will be renamed with adding date and timestamp.
 
 
+
+--------------------------------------------------------------------
+
+Step 12 : creating files and directories and deleting them
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/06-creating%20files%20and%20directories%20and%20deleting%20fileand%20dir.yml
+If we delete  a directory all files in that dir will be deleted.
+
+
+
+--------------------------------------------------------------------
+
+Step 13 : Changing Permissions 
