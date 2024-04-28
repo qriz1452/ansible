@@ -202,4 +202,58 @@ If we delete  a directory all files in that dir will be deleted.
 
 --------------------------------------------------------------------
 
-Step 13 : Changing Permissions 
+Step 13 : Changing Permissions of file and directory 
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/07-changing%20permissions.yml
+
+
+
+--------------------------------------------------------------------
+
+
+Step 14 : Running script 
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/08-script-execution.yml
+
+Ansible will run script from dir we have mentioned and the file if our script is creating will be created in homedirectory of remote server , if we want to define path of file then we can add full path in script or in ansible playbook. And if we are printing anything via script we can do via logging to a file or creating log via ansible playbook using >> 
+
+
+
+----------------------------------------------------
+
+Step 15 : CRON job execution
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/09-CRON%20job%20execution.yml
+
+To check cron jobs use command : `crontab -l`
+
+-----------------------------------------------
+
+
+
+Step 16 : CRON job deleting 
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/10-CRON%20job%20modify.yml
+
+THE CRON JOB NAME SHOULD BE SAME
+
+---------------------------------------------
+
+
+
+Step 17 : CRON job modifying
+
+Playbook : https://github.com/qriz1452/ansible/blob/main/Playbooks/09-CRON%20job%20execution.yml
+Just modify minute, hour etc...
+
+To disable a cron jobs use `disabled: yes` in playbook.
+
+-------------------------------------------
+
+
+
+
+
+
+
+
