@@ -1,0 +1,12 @@
+---
+- name: ENV with cron
+  hosts: all
+
+  tasks:
+  - name: Adding env variable
+    cron: 
+      name: PATH
+      env: yes
+      user: paul
+      job: /tmp/script/test.sh236+
+      
