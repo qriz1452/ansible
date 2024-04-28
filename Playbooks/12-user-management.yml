@@ -1,0 +1,13 @@
+---
+- name: User Management
+  hosts: all
+
+  tasks:
+  - name: user creation
+    user:
+      name: nick
+      comment: QA TEAM User
+      home: /home/nick
+      shell: /bin/bash
+      group: QA
+      
