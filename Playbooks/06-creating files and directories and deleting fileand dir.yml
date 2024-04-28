@@ -1,0 +1,27 @@
+---
+- name: creating files and directories
+  hosts: all
+
+  tasks:
+  - name: Creating a file
+    file:
+      path: /tmp/file.txt
+      state: touch
+      owner: paul
+      group: paul
+      mode: u=rwx,g=rw,o=r
+  
+  - name: Creating a dir
+    file:
+      path: /tmp/myfolder
+      state: directory
+      
+  - name: Deleting a file
+    file:
+      path: /tmp/file.txt
+      state: absent
+
+  - name: Deleting a directory
+    file:
+      path: /tmp/myfolder
+      state: absent
