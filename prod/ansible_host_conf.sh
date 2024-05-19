@@ -181,12 +181,12 @@ ANSIBLE_CFG="/etc/ansible/ansible.cfg"
 # password and ssh
 ansible_sec() {
 
-ANSIBLE_USER_PASS="PA$$WORD"
+ANSIBLE_USER_PASS="P@SSWORD"
 SSH_DIR="$ANSIBLE_DIR/ssh"
 KEY_NAME="ansible_id_rsa"
 
   echo "Setting ansible user password"
-  echo '$ANSIBLE_USER_PASS' | sudo passwd --stdin $ANSIBLE_USER
+  echo "$ANSIBLE_USER_PASS" | sudo passwd --stdin $ANSIBLE_USER
 
 
   if [ ! -d $SSH_DIR ]; then
