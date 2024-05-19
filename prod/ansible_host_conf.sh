@@ -65,7 +65,7 @@ py_check(){
         sudo apt install python3 -y
         ;;
 
-      "CentOS" | "Red" | "Fedora" | "Amazon")
+      "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
         sudo yum  update -y
         sudo yum install python3 -y
         ;;
@@ -92,7 +92,7 @@ ansible_install(){
       sudo apt update
       sudo apt install ansible -y
       ;;
-    "CentOS" | "Red" | "Fedora" | "Amazon Linux")
+    "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
       sudo yum update
       sudo yum install ansible -y
       ;;
