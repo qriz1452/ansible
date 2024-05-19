@@ -186,7 +186,8 @@ SSH_DIR="$ANSIBLE_DIR/ssh"
 KEY_NAME="ansible_id_rsa"
 
   echo "Setting ansible user password"
-  echo "$ANSIBLE_USER_PASS" | sudo passwd --stdin $ANSIBLE_USER
+  #echo "$ANSIBLE_USER_PASS" | sudo passwd --stdin $ANSIBLE_USER
+  echo "${ANSIBLE_USER}:${ANSIBLE_USER_PASS}" | sudo chpasswd
 
 
   if [ ! -d $SSH_DIR ]; then
