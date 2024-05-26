@@ -257,6 +257,8 @@ ssh_copy(){
     eval \$(ssh-agent)
     ssh-add ${SSH_DIR}/${KEY_NAME}
   "
+   echo "IF YOU ARE GETTING ERROR UNABLE TO SSH THEN EXECUTE THE COMMAND 'eval $(ssh-agent)' and      'ssh-add ${SSH_DIR}/${KEY_NAME}' command as ansible user in ansible home directory" 
+
 
 }
 
