@@ -13,7 +13,7 @@ display_banner() {
   echo " /////////////////////////////////// "
 
   echo " "
-  echo "The Current date and Time is : $(date +"%Y-%m-%d %H:%M:%S")"
+  echo "The Script started at  : $(date +"%Y-%m-%d %H:%M:%S")"
 
 }
 
@@ -45,7 +45,7 @@ sys_info() {
     OS=$(uname -s0)
   fi
 
-  echo "Detected OS : $OS"
+  echo "Detected OS  is  : $OS"
 }
 
 
@@ -56,7 +56,7 @@ py_check(){
   echo "Checking Python version..."
   if command -v python3 &>/dev/null; then
     PYTHON_VERSION=$(python3 --version)
-    echo "Python is installed  : $PYTHON_VERSION"
+    echo "Python is installed. Python version is  : $PYTHON_VERSION"
   else
     echo "Python is not installed. Installing latest Python..."
     case $OS in
@@ -89,8 +89,11 @@ ansible_install(){
   echo "Starting Ansible installation in $OS..."
   case $OS in
     "Ubuntu" | "Debian")
+      echo "Updating system repository libraries."
       sudo apt update
+      echo "Installing latest version of ansible."
       sudo apt install ansible -y
+
       ;;
     "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
       sudo yum update
@@ -103,7 +106,10 @@ ansible_install(){
 
   if command -v ansible &>/dev/null; then
     ANSIBLE_VERSION=$(ansible --version | head -n1)
-    echo "Ansible Successfully installed : $ANSIBLE_VERSION"
+    ANSIBLE_COMMUNITY_VERSION=$(ansible-community --version)
+    echo "Ansible Successfully installed."
+    echo "Ansible Core Version is : $ANSIBLE_VERSION"
+    echo "Ansible Community Version is : $ANSIBLE_COMMUNITY_VERSION"
   else
     echo "Failed to install Ansible."
   fi
@@ -122,7 +128,7 @@ ANSIBLE_DIR="/home/ansible"
     echo "Ansible group --> $ANSIBLE_GROUP <-- already exist."
   else
     echo "Ansible group --> $ANSIBLE_GROUP <-- Not Found"
-    echo "Creating Ansible group --> $ANSIBLE_GROUP..."
+    echo "Creating Ansible group --> $ANSIBLE_GROUP <-- ..."
     sudo groupadd $ANSIBLE_GROUP
     echo "Group Created."
   fi
@@ -132,7 +138,7 @@ ANSIBLE_DIR="/home/ansible"
     echo "Ansible user --> $ANSIBLE_USER <-- already exist."
   else
     echo "Ansible user --> $ANSIBLE_USER <-- Not Found."
-    echo "Creating Ansible user --> $ANSIBLE_USER..."
+    echo "Creating Ansible user --> $ANSIBLE_USER <-- ..."
     sudo useradd -m -d $ANSIBLE_DIR -g $ANSIBLE_GROUP -s /bin/bash $ANSIBLE_USER
     echo "User created"
   fi
@@ -142,7 +148,7 @@ ANSIBLE_DIR="/home/ansible"
     echo "Ansible directory --> $ANSIBLE_DIR <-- already exist"
   else
     echo "Ansible home directory not found"
-    echo "Creating ansible home directory --> $ANSIBLE_DIR ..."
+    echo "Creating ansible home directory --> $ANSIBLE_DIR <--  ..."
     sudo mkdir -p $ANSIBLE_DIR
     echo "Ansible Home directory created."
   fi
@@ -172,18 +178,18 @@ ANSIBLE_CFG="/etc/ansible/ansible.cfg"
     echo "Ansible configuration file --> $ANSIBLE_CFG <-- already exists."
   else
     echo "Ansible configuration file not found"
-    echo "Creating Ansible configuration file --> $ANSIBLE_CFG..."
+    echo "Creating Ansible configuration file --> $ANSIBLE_CFG <-- ..."
     sudo ansible-config init --disabled -t all > $ANSIBLE_CFG
-    echo "Ansible conf file created."
+    echo "Ansible configuration file created."
   fi
 }
 
 # password and ssh
 ansible_sec() {
 
-ANSIBLE_USER_PASS="P@SSWORD"
+ANSIBLE_USER_PASS="password"
 SSH_DIR="$ANSIBLE_DIR/ssh"
-KEY_NAME="ansible_id_rsa"
+KEY_NAME="ansible_server_id_rsa"
 
   echo "Setting ansible user password"
   #echo "$ANSIBLE_USER_PASS" | sudo passwd --stdin $ANSIBLE_USER
@@ -193,22 +199,63 @@ KEY_NAME="ansible_id_rsa"
   if [ ! -d $SSH_DIR ]; then
     echo "$SSH_DIR does not exist, creating..."
     mkdir -p "$SSH_DIR"
+    echo "$SSH_DIR created."
+    echo "Setting $SSH_DIR permission..."
     chown "$ANSIBLE_USER:$ANSIBLE_USER" "$SSH_DIR"
     chmod 700 "$SSH_DIR"
+    echo "$SSH_DIR directory permissions updated."
   fi
-  echo "Generating key-pair for servers"
+  echo "Generating key-pair for ansible servers."
   sudo -u "$ANSIBLE_USER" ssh-keygen -t rsa -b 4096 -f "${SSH_DIR}/${KEY_NAME}" -N ""
 
 }
 
 
 
+# Copying SSH file to servers.
+ssh_copy(){
+
+
+  SERVER_FILE="server.txt"
+
+  if [[ ! -f "$SERVER_FILE" ]]; then
+    echo "Server file not found: $SERVER_FILE"
+    exit 1
+  else
+    echo "Sever file found. $SERVER_FILE"
+  fi
+
+  if [[ ! -f "${SSH_DIR}/${KEY_NAME}" ]]; then
+    echo "SSH key file not found: ${SSH_DIR}/${KEY_NAME}"
+    exit 1
+  else
+    echo "SSH key file found : ${SSH_DIR}/${KEY_NAME}"
+  fi
+
+  while IFS= read -r server; do
+    # Skip empty lines or lines that start with a comment
+    [[ -z "$server" || "$server" =~ ^# ]] && continue
+  
+    echo "Copying SSH key to $server..."
+    ssh-copy-id -i "${SSH_DIR}/${KEY_NAME}" -o StrictHostKeyChecking=no  "$ANSIBLE_USER@$server"
+
+    if [[ $? -eq 0 ]]; then
+      echo "Successfully copied SSH key to $server"
+    else
+      echo "Failed to copy SSH key to $server"
+    fi
+
+  done < "$SERVER_FILE"
+
+  echo "SSH key distribution complete."
+
+}
 
 
 # Display the banner
 display_banner
 
-# Display system inf0
+# Display system info
 sys_info
 
 # Installing Python
@@ -223,5 +270,8 @@ ansible_user
 #Ansible configuration file
 ansible_conf
 
-#Ansible ssh an dpasswd
+#Ansible ssh and passwd
 ansible_sec
+
+#Copying SSH files
+ssh_copy
