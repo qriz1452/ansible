@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+
+# Ask for password
+read -sp "Enter password for ansible at remote server ( You may need this password to copy SSH key for passwordless authentication): " SSH_PASSWORD
+
 # Function to display ASCII art for ANSIBLE
 
 
@@ -188,7 +193,7 @@ ANSIBLE_CFG="/etc/ansible/ansible.cfg"
 ansible_sec() {
 
 ANSIBLE_USER_PASS="password"
-SSH_DIR="$ANSIBLE_DIR/ssh"
+SSH_DIR="$ANSIBLE_DIR/.ssh"
 KEY_NAME="ansible_server_id_rsa"
 
   echo "Setting ansible user password"
@@ -237,7 +242,7 @@ ssh_copy(){
     [[ -z "$server" || "$server" =~ ^# ]] && continue
   
     echo "Copying SSH key to $server..."
-    ssh-copy-id -i "${SSH_DIR}/${KEY_NAME}" -o StrictHostKeyChecking=no  "$ANSIBLE_USER@$server"
+    sshpass -p "$SSH_PASSWORD" ssh-copy-id -i "${SSH_DIR}/${KEY_NAME}" -o StrictHostKeyChecking=no "$ANSIBLE_USER@$server"
 
     if [[ $? -eq 0 ]]; then
       echo "Successfully copied SSH key to $server"
