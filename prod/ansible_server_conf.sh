@@ -129,8 +129,12 @@ ANSIBLE_DIR="/home/ansible"
 
   echo "Ansible user,group and directory configurations Completed."
 
-
-
+  echo "Reviewing and setting permission for ansible home directory , ssh and authorized keys"
+  chmod 0700 $ANSIBLE_DIR
+  chmod 0700 $SSH_DIR
+  touch $SSH_DIR/authorized_keys
+  chmod 0600 $SSH_DIR/authorized_keys
+  
 }
 
 
@@ -179,6 +183,12 @@ KEY_NAME="ansible_server_id_rsa"
 
   # Ensure AuthorizedKeysFile is set to .ssh/authorized_keys
   update_sshd_config "AuthorizedKeysFile" ".ssh/authorized_keys"
+
+  update_sshd_config "PermitRootLogin" "no"
+  update_sshd_config "ChallengeResponseAuthentication" "no"
+  update_sshd_config "UsePAM" "yes"
+  update_sshd_config "# #GSSAPIAuthentication" "yes"
+  update_sshd_config "# #GSSAPICleanupCredentials" "no"
 
   # Restart SSH service to apply changes
   sudo systemctl restart sshd
