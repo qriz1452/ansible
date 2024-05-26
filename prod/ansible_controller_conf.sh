@@ -255,7 +255,7 @@ ssh_copy(){
   echo "SSH key distribution complete."
   su - ansible -c "
     eval \$(ssh-agent)
-    ssh-add /home/user/.ssh/your_private_key
+    ssh-add ${SSH_DIR}/${KEY_NAME}
   "
 
 }
