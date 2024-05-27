@@ -17,16 +17,16 @@ read -sp "Enter password for ansible at remote server ( You may need this passwo
 
 
 display_banner() {
-  echo "${CYAN}  ///////////////////////////////////"
-  echo " ///                             ///"
-  echo " ///    ANSIBLE HOST             ///"
-  echo " ///                             ///"
-  echo " ///    INSTALLATION SCRIPT      ///"
-  echo " ///                             ///"
-  echo " /////////////////////////////////// ${NC}"
+  echo -e "${CYAN}  ///////////////////////////////////"
+  echo  -e " ///                             ///"
+  echo  -e " ///    ANSIBLE HOST             ///"
+  echo  -e " ///                             ///"
+  echo  -e " ///    INSTALLATION SCRIPT      ///"
+  echo  -e " ///                             ///"
+  echo  -e " /////////////////////////////////// ${NC}"
 
   echo " "
-  echo "${YELLOW}The Script started at  : $(date +"%Y-%m-%d %H:%M:%S") ${NC}"
+  echo -e  "${YELLOW}The Script started at  : $(date +"%Y-%m-%d %H:%M:%S") ${NC}"
 
 }
 
@@ -71,15 +71,15 @@ py_check() {
     case $OS in
       "Ubuntu" | "Debian")
         echo -e "${BLUE}Updating package lists...${NC}"
-        sudo apt update -y -vvv
+        sudo apt update -y -vvvvv
         echo -e "${BLUE}Installing Python...${NC}"
-        sudo apt install python3 -y -vvv
+        sudo apt install python3 -y -vvvvv
         ;;
       "CentOS" | "Red" | "Fedora" | "Amazon")
         echo -e "${BLUE}Updating package lists...${NC}"
-        sudo yum update -y -vvv
+        sudo yum update -y -vvvvv
         echo -e "${BLUE}Installing Python...${NC}"
-        sudo yum install python3 -y -vvv
+        sudo yum install python3 -y -vvvvv
         ;;
       *)
         echo -e "${RED}Unsupported OS for automatic Python installation.${NC}"
@@ -104,14 +104,14 @@ ansible_install(){
   case $OS in
     "Ubuntu" | "Debian")
       echo -e "${YELLOW}Updating system repository libraries.${NC}"
-      sudo apt update
+      sudo apt update -vvvvv
       echo -e "${YELLOW}Installing the latest version of ansible.${NC}"
-      sudo apt install ansible -y
+      sudo apt install ansible -y -vvvvv
 
       ;;
     "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
-      sudo yum update
-      sudo yum install ansible -y
+      sudo yum update -vvvvv
+      sudo yum install ansible -y -vvvvv
       ;;
     *)
       echo -e "${RED}Unsupported OS for automatic Ansible Installation.${NC}"
@@ -160,13 +160,13 @@ ansible_user(){
   else
     echo -e "${YELLOW}Ansible home directory not found.${NC}"
     echo -e "${YELLOW}Creating Ansible home directory --> $ANSIBLE_DIR <--  ...${NC}"
-    sudo mkdir -p $ANSIBLE_DIR
+    sudo mkdir -p $ANSIBLE_DIR -vvvvv
     echo -e "${GREEN}Ansible Home directory created.${NC}"
   fi
 
   sudo chown -R $ANSIBLE_USER:$ANSIBLE_GROUP $ANSIBLE_DIR
   echo -e "${YELLOW}Ansible home directory permissions updated.${NC}"
-  sudo chmod 755 $ANSIBLE_DIR
+  sudo chmod 755 $ANSIBLE_DIR -vvvvv
   echo -e "${YELLOW}Ansible chmod done to 755.${NC}"
 
   echo -e "${GREEN}Ansible user, group, and directory configurations Completed.${NC}"
@@ -203,11 +203,11 @@ ansible_sec() {
 
     if [ ! -d $SSH_DIR ]; then
         echo -e "${BLUE}${SSH_DIR} does not exist, creating...${NC}"
-        mkdir -p "$SSH_DIR"
+        mkdir -p "$SSH_DIR" -vvvvv
         echo -e "${GREEN}${SSH_DIR} created.${NC}"
         echo -e "${BLUE}Setting ${SSH_DIR} permission...${NC}"
         chown "$ANSIBLE_USER:$ANSIBLE_USER" "$SSH_DIR"
-        chmod 700 "$SSH_DIR"
+        chmod 700 "$SSH_DIR" -vvvvv
         echo -e "${GREEN}${SSH_DIR} directory permissions updated.${NC}"
     fi
     echo -e "${BLUE}Generating key-pair for ansible servers.${NC}"
@@ -248,7 +248,7 @@ ssh_copy(){
 
     echo -e "${GREEN}SSH key distribution complete.${NC}"
     su - ansible -c "eval \$(ssh-agent) && ssh-add ${SSH_DIR}/${KEY_NAME}"
-    echo -e "${YELLOW}IF YOU ARE GETTING ERROR UNABLE TO SSH THEN EXECUTE THE COMMAND 'eval \$(ssh-agent)' and 'ssh-add ${SSH_DIR}/${KEY_NAME}' command as ansible user in ansible home directory${NC}"
+    echo -e "${RED}IF YOU ARE GETTING ERROR UNABLE TO SSH THEN EXECUTE THE COMMAND eval \\\$(ssh-agent) and ssh-add \${SSH_DIR}/\${KEY_NAME} command as ansible user in ansible home directory${NC}"
 }
 
 
