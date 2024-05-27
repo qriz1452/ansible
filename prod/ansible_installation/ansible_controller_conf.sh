@@ -259,13 +259,6 @@ ssh_copy(){
     echo -e "${RED}IF YOU ARE GETTING ERROR UNABLE TO SSH THEN EXECUTE THE COMMAND eval \\\$(ssh-agent) and ssh-add \${SSH_DIR}/\${KEY_NAME} command as ansible user in ansible home directory${NC}"
 }
 
-
-
-
-
-
-
-
 # Main script execution
 if [[ $# -eq 0 ]]; then
   show_usage
