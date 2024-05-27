@@ -76,7 +76,7 @@ py_check() {
         echo -e "${BLUE}Installing Python...${NC}"
         sudo apt install python3 -y -vvvvv
         ;;
-      "CentOS" | "Red" | "Fedora" | "Amazon")
+      "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon")
         echo -e "${BLUE}Updating package lists...${NC}"
         sudo yum update -y -vvvvv
         echo -e "${BLUE}Installing Python...${NC}"
@@ -105,13 +105,20 @@ ansible_install(){
   case $OS in
     "Ubuntu" | "Debian")
       echo -e "${YELLOW}Updating system repository libraries.${NC}"
-      sudo apt update -vvvvv
+      sudo apt update -y -vvvvv
       echo -e "${YELLOW}Installing the latest version of ansible.${NC}"
       sudo apt install ansible -y -vvvvv
 
       ;;
-    "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
-      sudo yum update -vvvvv
+    "Red Hat Enterprise Linux")
+      echo -e "${YELLOW}Updating system repository libraries.${NC}"
+      sudo yum update -y  -vvvvv
+      echo -e "${YELLOW}Installing the latest version of ansible.${NC}"
+      sudo dnf install ansible-core -y -vvvvv
+
+      ;;
+    "CentOS" | "Fedora" | "Amazon Linux")
+      sudo yum update -y -vvvvv
       sudo yum install ansible -y -vvvvv
       ;;
     *)
