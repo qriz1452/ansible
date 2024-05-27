@@ -17,6 +17,7 @@ read -sp "Enter password for ansible at remote server ( You may need this passwo
 
 
 display_banner() {
+  echo " "
   echo -e "${CYAN}  ///////////////////////////////////"
   echo  -e " ///                             ///"
   echo  -e " ///    ANSIBLE HOST             ///"
