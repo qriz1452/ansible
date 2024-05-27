@@ -51,7 +51,6 @@ Once the script execution is complete, your Ansible managed nodes should be conf
 
 
 
-Certainly! Here's a full documentation for your Ansible setup script:
 
 ---
 
