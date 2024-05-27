@@ -11,7 +11,6 @@ NC='\e[0m' # No Color
 
 
 ask_pass(){
-
   # Ask for password
   read -sp "Enter password for ansible at remote server ( You may need this password to copy SSH key for passwordless authentication): " SSH_PASSWORD
 }
