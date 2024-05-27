@@ -263,26 +263,57 @@ ssh_copy(){
 
 
 
-# Display the banner
-display_banner
-
-# Display system info
-sys_info
-
-# Installing Python
-py_check
-
-# Ansible installation
-ansible_install
-
-# Ansible user creation
-ansible_user
 
 #Ansible configuration file
-ansible_conf
 
 #Ansible ssh and passwd
 ansible_sec
 
 #Copying SSH files
 ssh_copy
+
+# Main script execution
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 1
+fi
+
+case $1 in
+  display_banner)
+    display_banner
+    ;;
+  sys_info)
+    sys_info
+    ;;
+  py_check)
+    py_check
+    ;;
+  ansible_install)
+    ansible_install
+    ;;
+  ansible_user)
+    ansible_user
+    ;;
+  ansible_conf)
+    ansible_conf
+    ;;
+  ansible_sec)
+    ansible_sec
+    ;;
+  ssh_copy)
+    ssh_copy
+    ;;
+  all)
+    display_banner
+    sys_info
+    py_check
+    ansible_install
+    ansible_user
+    ansible_conf
+    ansible_sec
+    ssh_copy
+    ;;
+  *)
+    show_usage
+    ;;
+esac
