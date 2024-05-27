@@ -7,7 +7,7 @@ To configure your Ansible managed nodes, follow these steps:
 Before executing the script, ensure you have appropriate permissions. Run the script as sudo:
 
 ```bash
-sudo ./ansible_agents_conf.sh
+sudo ./ansible_agents_conf.sh all
 ```
 
 This ensures that the script has the necessary privileges to perform system-level operations.
