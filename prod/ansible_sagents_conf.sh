@@ -1,189 +1,234 @@
 #!/bin/bash
 
+# Define color variables
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+MAGENTA='\e[35m'
+CYAN='\e[36m'
+NC='\e[0m' # No Color
+
 # Function to display ASCII art for ANSIBLE
 display_banner() {
-  echo " ///////////////////////////////////"
-  echo " ///                             ///"
-  echo " ///    ANSIBLE SERVER           ///"
-  echo " ///                             ///"
-  echo " ///  CONFIGURATION  SCRIPT      ///"
-  echo " ///                             ///"
-  echo " /////////////////////////////////// "
-  echo " "
-  echo "The Script started at  : $(date +"%Y-%m-%d %H:%M:%S")"
+  echo -e "${CYAN} ///////////////////////////////////"
+  echo -e " ///                             ///"
+  echo -e " ///    ANSIBLE SERVER           ///"
+  echo -e " ///                             ///"
+  echo -e " ///  CONFIGURATION  SCRIPT      ///"
+  echo -e " ///                             ///"
+  echo -e " /////////////////////////////////// ${NC}"
+  echo -e "${YELLOW}The Script started at: $(date +"%Y-%m-%d %H:%M:%S")${NC}"
 }
 
 # Function to check system details
 sys_info() {
-  echo "Fetching OS Details......"
+  echo -e "${GREEN}Fetching OS Details...${NC}"
   if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS=$NAME
+    echo -e "${GREEN}Found /etc/os-release. OS is: $OS${NC}"
   elif type lsb_release >/dev/null 2>&1; then
     OS=$(lsb_release -si)
+    echo -e "${GREEN}Found lsb_release command. OS is: $OS${NC}"
   elif [ -f /etc/lsb_release ]; then
     . /etc/lsb_release
     OS=$DISTRIB_ID
+    echo -e "${GREEN}Found /etc/lsb_release. OS is: $OS${NC}"
   elif [ -f /etc/debian_version ]; then
     OS=Debian
+    echo -e "${GREEN}Found /etc/debian_version. OS is: $OS${NC}"
   elif [ -f /etc/redhat-release ]; then
     OS=$(cat /etc/redhat-release | awk '{print $1}')
+    echo -e "${GREEN}Found /etc/redhat-release. OS is: $OS${NC}"
   else
     OS=$(uname -s0)
+    echo -e "${GREEN}OS detection fallback. OS is: $OS${NC}"
   fi
-  echo "Detected OS  is  : $OS"
 }
 
 # Function to check python and install if not available.
 py_check() {
-  echo "Checking Python version..."
+  echo -e "${BLUE}Checking Python version...${NC}"
   if command -v python3 &>/dev/null; then
     PYTHON_VERSION=$(python3 --version)
-    echo "Python is installed. Python version is  : $PYTHON_VERSION"
+    echo -e "${BLUE}Python is installed. Python version is: $PYTHON_VERSION${NC}"
   else
-    echo "Python is not installed. Installing latest Python..."
+    echo -e "${RED}Python is not installed. Installing latest Python...${NC}"
     case $OS in
       "Ubuntu" | "Debian")
-        sudo apt update -y
-        sudo apt install python3 -y
+        echo -e "${BLUE}Updating package lists...${NC}"
+        sudo apt update -y -vvvvv
+        echo -e "${BLUE}Installing Python...${NC}"
+        sudo apt install python3 -y -vvvvv
         ;;
-      "CentOS" | "Red Hat Enterprise Linux" | "Fedora" | "Amazon Linux")
-        sudo yum update -y
-        sudo yum install python3 -y
+      "CentOS" | "Red" | "Fedora" | "Amazon")
+        echo -e "${BLUE}Updating package lists...${NC}"
+        sudo yum update -y -vvvvv
+        echo -e "${BLUE}Installing Python...${NC}"
+        sudo yum install python3 -y -vvvvv
         ;;
       *)
-        echo "Unsupported OS for automatic Python installation."
+        echo -e "${RED}Unsupported OS for automatic Python installation.${NC}"
+        return
     esac
     if command -v python3 &>/dev/null; then
       PYTHON_VERSION=$(python3 --version)
-      echo "Python successfully installed: $PYTHON_VERSION"
+      echo -e "${BLUE}Python successfully installed: $PYTHON_VERSION${NC}"
     else
-      echo "Failed to install Python."
+      echo -e "${RED}Failed to install Python.${NC}"
     fi
   fi
 }
 
-# Ansible User creation
+# Function to create ansible user
 ansible_user() {
   ANSIBLE_USER="ansible"
   ANSIBLE_GROUP="ansible"
   ANSIBLE_DIR="/home/ansible"
 
-  if grep -q "^$ANSIBLE_GROUP:" /etc/group; then
-    echo "Ansible group --> $ANSIBLE_GROUP <-- already exist."
+  if getent group $ANSIBLE_GROUP >/dev/null; then
+    echo -e "${YELLOW}Ansible group '$ANSIBLE_GROUP' already exists.${NC}"
   else
-    echo "Ansible group --> $ANSIBLE_GROUP <-- Not Found"
-    echo "Creating Ansible group --> $ANSIBLE_GROUP <-- ..."
-    sudo groupadd $ANSIBLE_GROUP
-    echo "Group Created."
+    echo -e "${YELLOW}Ansible group '$ANSIBLE_GROUP' not found. Creating...${NC}"
+    sudo groupadd $ANSIBLE_GROUP 
+    echo -e "${YELLOW}Group created.${NC}"
   fi
 
   if id "$ANSIBLE_USER" &>/dev/null; then
-    echo "Ansible user --> $ANSIBLE_USER <-- already exist."
+    echo -e "${YELLOW}Ansible user '$ANSIBLE_USER' already exists.${NC}"
   else
-    echo "Ansible user --> $ANSIBLE_USER <-- Not Found."
-    echo "Creating Ansible user --> $ANSIBLE_USER <-- ..."
-    sudo useradd -m -d $ANSIBLE_DIR -g $ANSIBLE_GROUP -s /bin/bash $ANSIBLE_USER
-    echo "User created"
+    echo -e "${YELLOW}Ansible user '$ANSIBLE_USER' not found. Creating...${NC}"
+    sudo useradd -m -d $ANSIBLE_DIR -g $ANSIBLE_GROUP -s /bin/bash $ANSIBLE_USER 
+    echo -e "${YELLOW}User created.${NC}"
   fi
 
   if [ -d "$ANSIBLE_DIR" ]; then
-    echo "Ansible directory --> $ANSIBLE_DIR <-- already exist"
+    echo -e "${YELLOW}Ansible home directory '$ANSIBLE_DIR' already exists.${NC}"
   else
-    echo "Ansible home directory not found"
-    echo "Creating ansible home directory --> $ANSIBLE_DIR <--  ..."
-    sudo mkdir -p $ANSIBLE_DIR
-    echo "Ansible Home directory created."
+    echo -e "${YELLOW}Ansible home directory not found. Creating...${NC}"
+    sudo mkdir -p $ANSIBLE_DIR -vvvvv
+    echo -e "${YELLOW}Ansible home directory created.${NC}"
   fi
 
-  sudo chown -R $ANSIBLE_USER:$ANSIBLE_GROUP $ANSIBLE_DIR
-  echo "Ansible home directory permissions updated"
-  sudo chmod 755 $ANSIBLE_DIR
-  echo "Ansible chmod done to 755"
+  echo -e "${YELLOW}Updating permissions for Ansible home directory...${NC}"
+  sudo chown -R $ANSIBLE_USER:$ANSIBLE_GROUP $ANSIBLE_DIR -vvvvv
+  sudo chmod 755 $ANSIBLE_DIR -vvvvv
+  echo -e "${YELLOW}Permissions updated.${NC}"
 
-  echo "Ansible user, group, and directory configurations Completed."
+  echo -e "${YELLOW}Ansible user, group, and directory configuration completed.${NC}"
 }
 
+# Function to configure ansible user security
 ansible_sec() {
   ANSIBLE_USER_PASS="password"
   SSH_DIR="/home/ansible/.ssh"
-  KEY_NAME="ansible_server_id_rsa"
 
-  echo "Setting ansible user password"
-  echo "${ANSIBLE_USER}:${ANSIBLE_USER_PASS}" | sudo chpasswd
+  echo -e "${MAGENTA}Setting ansible user password...${NC}"
+  echo "${ANSIBLE_USER}:${ANSIBLE_USER_PASS}" | sudo chpasswd 
+  echo -e "${MAGENTA}Password set.${NC}"
 
   if [ ! -d $SSH_DIR ]; then
-    echo "$SSH_DIR does not exist, creating..."
-    sudo mkdir -p "$SSH_DIR"
-    echo "$SSH_DIR created."
-    echo "Setting $SSH_DIR permission..."
-    sudo chown "$ANSIBLE_USER:$ANSIBLE_USER" "$SSH_DIR"
-    sudo chmod 700 "$SSH_DIR"
-    echo "$SSH_DIR directory permissions updated."
-  else
-    echo "Setting $SSH_DIR permission..."
-    sudo chown "$ANSIBLE_USER:$ANSIBLE_USER" "$SSH_DIR"
-    sudo chmod 700 "$SSH_DIR"
-    echo "$SSH_DIR directory permissions updated."
+    echo -e "${MAGENTA}$SSH_DIR does not exist. Creating...${NC}"
+    sudo mkdir -p "$SSH_DIR" -vvvvv
+    echo -e "${MAGENTA}$SSH_DIR created.${NC}"
   fi
 
-  echo "Reviewing and setting permission for ansible home directory, ssh, and authorized keys"
-  sudo chmod 0700 $ANSIBLE_DIR
-  sudo chmod 0700 $SSH_DIR
-  sudo touch $SSH_DIR/authorized_keys
-  sudo chmod 0600 $SSH_DIR/authorized_keys
-  sudo chown "$ANSIBLE_USER:$ANSIBLE_USER" $SSH_DIR/authorized_keys
+  echo -e "${MAGENTA}Setting permissions for $SSH_DIR...${NC}"
+  sudo chown "$ANSIBLE_USER:$ANSIBLE_USER" "$SSH_DIR" -vvvvv
+  sudo chmod 700 "$SSH_DIR" -vvvvv
+  echo -e "${MAGENTA}Permissions updated.${NC}"
+
+  echo -e "${MAGENTA}Reviewing and setting permissions for ansible home directory, ssh, and authorized keys...${NC}"
+  sudo chmod 0700 $ANSIBLE_DIR -vvvvv
+  sudo chmod 0700 $SSH_DIR -vvvvv
+  sudo touch $SSH_DIR/authorized_keys 
+  sudo chmod 0600 $SSH_DIR/authorized_keys -vvvvv
+  sudo chown "$ANSIBLE_USER:$ANSIBLE_USER" $SSH_DIR/authorized_keys -vvvvv
+  echo -e "${MAGENTA}Permissions for SSH directory and files updated.${NC}"
 
   # Path to the sshd_config file
   SSHD_CONFIG="/etc/ssh/sshd_config"
 
   # Function to update sshd_config
   update_sshd_config() {
-      local setting="$1"
-      local value="$2"
-      if grep -q "^#*$setting" "$SSHD_CONFIG"; then
-          sudo sed -i "s|^#*$setting.*|$setting $value|" "$SSHD_CONFIG"
-      else
-          echo "$setting $value" | sudo tee -a "$SSHD_CONFIG" > /dev/null
-      fi
+    local setting="$1"
+    local value="$2"
+    if grep -q "^#*$setting" "$SSHD_CONFIG"; then
+      echo -e "${CYAN}Updating existing setting $setting in $SSHD_CONFIG to $value...${NC}"
+      sudo sed -i "s|^#*$setting.*|$setting $value|" "$SSHD_CONFIG" 
+    else
+      echo -e "${CYAN}Adding new setting $setting to $SSHD_CONFIG with value $value...${NC}"
+      echo "$setting $value" | sudo tee -a "$SSHD_CONFIG" > /dev/null
+    fi
+    echo -e "${CYAN}Setting $setting updated to $value.${NC}"
   }
 
-  # Ensure PubkeyAuthentication is set to yes
+  echo -e "${CYAN}Updating SSH configuration...${NC}"
   update_sshd_config "PubkeyAuthentication" "yes"
-  # Ensure PasswordAuthentication is set to yes
   update_sshd_config "PasswordAuthentication" "yes"
-  # Ensure AuthorizedKeysFile is set to .ssh/authorized_keys
   update_sshd_config "AuthorizedKeysFile" ".ssh/authorized_keys"
   update_sshd_config "PermitRootLogin" "no"
   update_sshd_config "ChallengeResponseAuthentication" "no"
   update_sshd_config "UsePAM" "yes"
   update_sshd_config "GSSAPIAuthentication" "yes"
   update_sshd_config "GSSAPICleanupCredentials" "no"
+  echo -e "${CYAN}SSH configuration updated.${NC}"
 
-  # Restart SSH service to apply changes
-  sudo systemctl restart sshd
-  echo "SSH configuration updated and SSH service restarted."
+  echo -e "${CYAN}Restarting SSH service...${NC}"
 
-  # Add ansible to sudoers without password prompt
-  if ! sudo grep -q "^ansible ALL=(ALL) NOPASSWD: ALL" /etc/sudoers; then
-      echo "ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers > /dev/null
-      echo "Updated sudoers to allow ansible user to run all commands without password."
+if [[ "$OS" == "Ubuntu" || "$OS" == "Debian" ]]; then
+    sudo systemctl restart ssh 
   else
-      echo "ansible user already has NOPASSWD sudo privileges."
+    sudo systemctl restart sshd 
+  fi
+  echo -e "${CYAN}SSH service restarted.${NC}"
+
+  echo -e "${GREEN}Adding ansible user to sudoers...${NC}"
+  if ! sudo grep -q "^ansible ALL=(ALL) NOPASSWD: ALL" /etc/sudoers; then
+    echo -e "${GREEN}ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers > /dev/null
+    echo -e "${GREEN}Ansible user added to sudoers with NOPASSWD privileges.${NC}"
+  else
+    echo -e "${GREEN}Ansible user already has NOPASSWD sudo privileges.${NC}"
   fi
 }
 
-# Display the banner
-display_banner
+# Function to show usage
+show_usage() {
+  echo -e  "${RED}Usage: $0 {display_banner|sys_info|py_check|ansible_user|ansible_sec}${NC}"
+  echo -e  "${RED}If you want to runn all functions i.e full script use 'all' flag.${NC}"
+}
 
-# Display system info
-sys_info
+# Main script execution
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 1
+fi
 
-# Installing Python
-py_check
-
-# Ansible user creation
-ansible_user
-
-# Ansible ssh and passwd
-ansible_sec
+case $1 in
+  display_banner)
+    display_banner
+    ;;
+  sys_info)
+    sys_info
+    ;;
+  py_check)
+    py_check
+    ;;
+  ansible_user)
+    ansible_user
+    ;;
+  ansible_sec)
+    ansible_sec
+    ;;
+  all)
+    display_banner
+    sys_info
+    py_check
+    ansible_user
+    ansible_sec
+    ;;
+  *)
+    show_usage
+    ;;
+esac
