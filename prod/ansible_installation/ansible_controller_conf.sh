@@ -10,8 +10,11 @@ CYAN='\e[36m'
 NC='\e[0m' # No Color
 
 
-# Ask for password
-read -sp "Enter password for ansible at remote server ( You may need this password to copy SSH key for passwordless authentication): " SSH_PASSWORD
+ask_pass(){
+
+  # Ask for password
+  read -sp "Enter password for ansible at remote server ( You may need this password to copy SSH key for passwordless authentication): " SSH_PASSWORD
+}
 
 # Function to display ASCII art for ANSIBLE
 
@@ -269,6 +272,9 @@ case $1 in
   display_banner)
     display_banner
     ;;
+  ask_pass)
+    ask_pass
+    ;;
   sys_info)
     sys_info
     ;;
@@ -291,6 +297,7 @@ case $1 in
     ssh_copy
     ;;
   all)
+    ask_pass
     display_banner
     sys_info
     py_check
