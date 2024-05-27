@@ -264,13 +264,7 @@ ssh_copy(){
 
 
 
-#Ansible configuration file
 
-#Ansible ssh and passwd
-ansible_sec
-
-#Copying SSH files
-ssh_copy
 
 # Main script execution
 if [[ $# -eq 0 ]]; then
