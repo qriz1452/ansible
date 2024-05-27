@@ -138,3 +138,36 @@ Copies the generated SSH public key to all the servers listed in the `server.txt
 
 ---
 
+
+
+   91  sudo yum install @postgresql:9.6
+   92  sudo postgresql-setup --initdb
+   93  sudo passwd postgres
+   94  sudo systemctl start postgresql
+   95  sudo systemctl enable postgresql
+   97   sudo -i -u postgres
+   98  ls
+   99  sudo vi ansible-tower/inventory
+ 78  sudo wget https://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+   79  sudo tar xvf ansible-tower-setup-latest.tar.gz
+   80  sudo mv ansible-tower-setup-3* ansible-tower
+   81  rm -rf ansible-tower-setup-latest.tar.gz
+
+
+
+  106  sudo dnf config-manager --set-enabled AppStream
+  107  sudo dnf install libselinux-pythonsudo subscription-manager repos --enable rhel-7-server-ansible-2.9-rpms
+
+  110  sudo subscription-manager repos --enable ansible-2.9-for-rhel-8-x86_64-rpms
+
+  123  yum install python3
+  124  yum install python36
+  126  alternatives --set python /usr/bin/python3
+  128  alternatives --set python3 /usr/bin/python3.6
+  129  python --version
+  131  dnf install python3-policycoreutils python3-libselinux
+  132  sh ansible-tower/setup.sh
+
+  135  curl https://54.169.194.147 --insecure
+
+

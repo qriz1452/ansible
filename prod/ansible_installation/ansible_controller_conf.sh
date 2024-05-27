@@ -116,7 +116,7 @@ ansible_install(){
       echo -e "${YELLOW}Updating system repository libraries.${NC}"
       sudo yum update -y  -vvvvv
       echo -e "${YELLOW}Installing the latest version of ansible.${NC}"
-      sudo dnf install ansible-core -y -vvvvv
+      sudo yum install ansible -y -vvvvv
 
       ;;
     "CentOS" | "Fedora" | "Amazon Linux")
@@ -245,7 +245,7 @@ ssh_copy(){
     while IFS= read -r server; do
         # Skip empty lines or lines that start with a comment
         [[ -z "$server" || "$server" =~ ^# ]] && continue
-      
+
         echo -e "${BLUE}Copying SSH key to $server...${NC}"
         sshpass -p "$SSH_PASSWORD" ssh-copy-id -i "${SSH_DIR}/${KEY_NAME}" -o StrictHostKeyChecking=no "$ANSIBLE_USER@$server"
 
