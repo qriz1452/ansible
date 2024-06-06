@@ -186,7 +186,7 @@ if [[ "$OS" == "Ubuntu" || "$OS" == "Debian" ]]; then
 
   echo -e "${GREEN}Adding ansible user to sudoers...${NC}"
   if ! sudo grep -q "^ansible ALL=(ALL) NOPASSWD: ALL" /etc/sudoers; then
-    echo -e "${GREEN}ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers > /dev/null
+    echo "ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers > /dev/null
     echo -e "${GREEN}Ansible user added to sudoers with NOPASSWD privileges.${NC}"
   else
     echo -e "${GREEN}Ansible user already has NOPASSWD sudo privileges.${NC}"
