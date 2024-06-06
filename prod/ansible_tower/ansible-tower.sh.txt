@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# Log file path
+LOG_FILE="/var/log/ansible_tower_setup.log"
+
+# Colors for output
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+YELLOW="\033[0;33m"
+NC="\033[0m" # No Color
+
+# Function to log and display messages
+log_message() {
+    local message="$1"
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $message" | tee -a "$LOG_FILE"
+}
+
+# Function to check if a package is installed
+check_package() {
+    local package="$1"
+    if ! command -v "$package" &> /dev/null; then
+        log_message "${YELLOW}$package${NC} is not installed. Installing..."
+        sudo dnf install -y "$package" >> "$LOG_FILE" 2>&1 || {
+            log_message "${RED}Failed to install $package. Exiting.${NC}"
+            exit 1
+        }
+    else
+        log_message "${GREEN}$package${NC} is already installed."
+    fi
+}
+
+# Function to set up Python versions
+setup_python() {
+    log_message "Setting up Python versions..."
+    sudo dnf config-manager --set-enabled AppStream
+    sudo dnf install -y libselinux-python subscription-manager
+    sudo subscription-manager repos --enable rhel-7-server-ansible-2.9-rpms
+    sudo subscription-manager repos --enable ansible-2.9-for-rhel-8-x86_64-rpms
+    sudo yum install -y python3 python36
+    sudo alternatives --set python /usr/bin/python3
+    sudo alternatives --set python3 /usr/bin/python3.6
+    python --version
+    sudo dnf install -y python3-policycoreutils python3-libselinux
+}
+
+# Function to download and setup Ansible Tower
+setup_ansible_tower() {
+    log_message "Downloading and setting up Ansible Tower..."
+    sudo wget https://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+    sudo tar xvf ansible-tower-setup-latest.tar.gz
+    sudo mv ansible-tower-setup-3* ansible-tower
+    rm -rf ansible-tower-setup-latest.tar.gz
+
+    # Notify user to update inventory file
+    echo -e "${YELLOW}Please update the inventory file.${NC}"
+    sudo vi ansible-tower/inventory
+
+    # Check if inventory file is updated
+    while true; do
+        read -rp "${YELLOW}Is the inventory file updated? (yes/no/exit): ${NC}" choice
+        case $choice in
+            yes)
+                break ;;
+            no)
+                sudo vi ansible-tower/inventory ;;
+            exit)
+                exit ;;
+            *)
+                echo -e "${RED}Invalid choice. Please enter 'yes', 'no', or 'exit'.${NC}" ;;
+        esac
+    done
+
+    # Run setup script
+    log_message "Running Ansible Tower setup script..."
+    if sh ansible-tower/setup.sh &>> "$LOG_FILE"; then
+        log_message "${GREEN}Ansible Tower setup completed successfully.${NC}"
+    else
+        log_message "${RED}Error occurred during Ansible Tower setup. Please check setup.log for details.${NC}"
+        exit 1
+    fi
+}
+
+# Function to check Ansible Tower installation
+check_ansible_tower() {
+    log_message "Checking Ansible Tower installation..."
+    if curl -sSf https://54.169.194.147 --insecure &>> "$LOG_FILE"; then
+        log_message "${GREEN}Ansible Tower is accessible.${NC}"
+    else
+        log_message "${RED}Failed to connect to Ansible Tower. Please check the network settings.${NC}"
+        exit 1
+    fi
+}
+
+# Main function
+main() {
+    # Ensure log file exists
+    touch "$LOG_FILE"
+
+    # Check required packages
+    check_package wget
+    check_package tar
+
+    # Set up Python
+    setup_python
+
+    # Set up Ansible Tower
+    setup_ansible_tower
+
+    # Check Ansible Tower installation
+    check_ansible_tower
+}
+
+# Execute main function
+main
