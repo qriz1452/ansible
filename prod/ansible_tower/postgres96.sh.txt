@@ -1,0 +1,222 @@
+#!/bin/bash
+
+set -e  # Exit on any error
+
+# ANSI color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'  # No Color
+
+LOGFILE="/var/log/postgres_setup.log"
+DB_NAME="${DB_NAME:-ansible-tower-db}"
+DB_USER="${DB_USER:-atpg}"
+DB_PASS="${DB_PASS:-p@ssword}"
+
+# Function to log messages
+log() {
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') $1" | tee -a $LOGFILE
+}
+
+# Function to log info messages
+log_info() {
+  log "${BLUE}INFO:${NC} $1"
+}
+
+# Function to log success messages
+log_success() {
+  log "${GREEN}SUCCESS:${NC} $1"
+}
+
+# Function to log warning messages
+log_warning() {
+  log "${YELLOW}WARNING:${NC} $1"
+}
+
+# Function to log error messages
+log_error() {
+  log "${RED}ERROR:${NC} $1"
+  exit 1
+}
+
+function reset_postgres_module() {
+    # Check if PostgreSQL is installed
+    if rpm -q postgresql-server &>/dev/null; then
+        # Prompt user for confirmation
+        read -p "This is a destructive operation and will remove any installed PostgreSQL version. Do you want to proceed? (yes/no): " choice
+        case "$choice" in
+            yes|YES|Yes)
+                # Remove PostgreSQL module
+                sudo yum module remove postgresql
+
+                # Reset PostgreSQL module
+                sudo yum module reset postgresql
+                ;;
+            *)
+                echo "Operation canceled."
+                exit 1
+                ;;
+        esac
+    else
+        echo "No PostgreSQL version is installed."
+    fi
+}
+
+
+
+# Function to update yum
+update_yum() {
+  log_info "Updating yum packages..."
+  sudo yum update -y | tee -a $LOGFILE
+  log_success "Yum packages updated."
+}
+
+# Function to install PostgreSQL 9.6
+install_postgresql() {
+  log_info "Installing PostgreSQL 9.6..."
+  sudo yum install -y @postgresql:9.6 | tee -a $LOGFILE
+  log_success "PostgreSQL 9.6 installed."
+}
+
+# Function to initialize PostgreSQL database
+initialize_postgresql_db() {
+  log_info "Initializing PostgreSQL database..."
+  sudo postgresql-setup --initdb | tee -a $LOGFILE
+  log_success "PostgreSQL database initialized."
+}
+
+# Function to set password for postgres user
+set_postgres_password() {
+  log_info "Setting password for postgres user..."
+  echo "$DB_PASS" | sudo passwd postgres --stdin | tee -a $LOGFILE
+  log_success "Password for postgres user set."
+}
+
+# Function to start and enable PostgreSQL service
+start_enable_postgresql() {
+  log_info "Starting and enabling PostgreSQL service..."
+  sudo systemctl start postgresql | tee -a $LOGFILE
+  sudo systemctl enable postgresql | tee -a $LOGFILE
+  log_success "PostgreSQL service started and enabled."
+}
+
+# Function to create user and database
+create_user_and_db() {
+  log_info "Creating $DB_USER user and $DB_NAME database..."
+  sudo -i -u postgres psql <<EOF | tee -a $LOGFILE
+-- Create user $DB_USER with password
+CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';
+
+-- Create database $DB_NAME with $DB_USER as owner
+CREATE DATABASE "$DB_NAME" OWNER $DB_USER;
+
+-- Grant all privileges on database to $DB_USER
+GRANT ALL PRIVILEGES ON DATABASE "$DB_NAME" TO $DB_USER;
+EOF
+  log_success "User $DB_USER and database $DB_NAME created."
+}
+
+# Function to fetch PostgreSQL port and host details
+fetch_postgresql_details() {
+  log_info "Fetching PostgreSQL configuration details..."
+  PG_PORT=$(sudo -i -u postgres psql -t -c "SHOW port;" | tr -d ' ' | tee -a $LOGFILE)
+  PG_HOST=$(sudo -i -u postgres psql -t -c "SHOW listen_addresses;" | tr -d ' ' | tee -a $LOGFILE)
+
+  # Default to localhost if listen_addresses is empty or set to '*'
+  if [[ -z "$PG_HOST" || "$PG_HOST" == "*" ]]; then
+    PG_HOST="localhost"
+  fi
+
+  PG_URL="postgresql://$DB_USER:$DB_PASS@$PG_HOST:$PG_PORT/$DB_NAME"
+  log_info "PostgreSQL URL for Ansible Tower inventory: $PG_URL"
+  log_info "PostgreSQL is running on port $PG_PORT"
+  log_success "PostgreSQL URL: $PG_URL"
+}
+
+# Function to check if the OS is RHEL 7 or 8
+check_os_version() {
+  log_info "Checking OS version..."
+  OS_VERSION=$(cat /etc/redhat-release)
+  if [[ $OS_VERSION =~ "release 7" ]] || [[ $OS_VERSION =~ "release 8" ]]; then
+    log_success "OS version is compatible: $OS_VERSION"
+  else
+    log_error "Ansible Tower works on RHEL 7 or 8. Detected version: $OS_VERSION"
+  fi
+}
+
+# Function to check prerequisites
+check_prerequisites() {
+  log_info "Checking prerequisites..."
+  if ! command -v psql &> /dev/null; then
+    log_warning "psql could not be found, installing PostgreSQL client..."
+    sudo yum install -y postgresql | tee -a $LOGFILE
+    log_success "PostgreSQL client installed."
+  fi
+}
+
+# Function to backup existing PostgreSQL configuration
+backup_postgresql_config() {
+  log_info "Backing up existing PostgreSQL configuration..."
+  sudo cp /var/lib/pgsql/9.6/data/postgresql.conf /var/lib/pgsql/9.6/data/postgresql.conf.bak
+  sudo cp /var/lib/pgsql/9.6/data/pg_hba.conf /var/lib/pgsql/9.6/data/pg_hba.conf.bak
+  log_success "Existing PostgreSQL configuration backed up."
+}
+
+# Function to check PostgreSQL service status
+check_postgresql_service() {
+  log_info "Checking PostgreSQL service status..."
+  sudo systemctl status postgresql | tee -a $LOGFILE
+}
+
+# Main function to orchestrate the setup
+main() {
+  reset_postgres_module
+  check_os_version
+  update_yum
+  check_prerequisites
+  install_postgresql
+#  backup_postgresql_config
+  initialize_postgresql_db
+  set_postgres_password
+  start_enable_postgresql
+  create_user_and_db
+  fetch_postgresql_details
+  check_postgresql_service
+}
+
+# Execute the main function
+main
+
+
+# Main function to orchestrate the setup
+main() {
+
+  if [ $# -eq 0 ]; then
+    echo "Error: No function name provided."
+    echo "Usage: $0 function_name [function_name2 ...]"
+    echo "Available function names:"
+    sed -n '/^main() {/,/^}$/p' "$0" | grep -oP '^\s+\w+' | grep -v 'main' | sed 's/^\s\+//'
+    exit 1
+  fi
+
+  for func in "$@"; do
+    case "$func" in
+      reset_postgres_module) reset_postgres_module ;;
+      check_os_version) check_os_version ;;
+      update_yum) update_yum ;;
+      check_prerequisites) check_prerequisites ;;
+      install_postgresql) install_postgresql ;;
+      initialize_postgresql_db) initialize_postgresql_db ;;
+      set_postgres_password) set_postgres_password ;;
+      start_enable_postgresql) start_enable_postgresql ;;
+      create_user_and_db) create_user_and_db ;;
+      fetch_postgresql_details) fetch_postgresql_details ;;
+      check_postgresql_service) check_postgresql_service ;;
+      *) echo "Function '$func' not found" ;;
+    esac
+  done
+}
+
+# Execute the main function with provided function names
+main "$@"
